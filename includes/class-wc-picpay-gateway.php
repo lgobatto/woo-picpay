@@ -225,7 +225,10 @@ class WC_PicPay_Gateway extends WC_Payment_Gateway {
 			}
 
 			// Remove cart.
-			WC()->cart->empty_cart();
+			if(method_exists(WC()->cart, 'empty_cart'))
+			{
+				WC()->cart->empty_cart();
+			}
 			
 			$order->add_order_note(__('PicPay: The buyer initiated the transaction, but so far the PicPay not received any payment information.', 'woo-picpay'));
 			
@@ -241,7 +244,11 @@ class WC_PicPay_Gateway extends WC_Payment_Gateway {
 		}
 		else {
 			foreach($response['error'] as $error) {
-				wc_add_notice($error, 'error');
+				if($is_rest_api) {
+					error_log('PicPay Error: ' . $error);
+				} else {
+					wc_add_notice($error, 'error');
+				}
 			}
         
 			return array(
